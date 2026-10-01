@@ -1,0 +1,11 @@
+spec_version: v1
+kind: external
+name: aws_infra_agent
+title: aws_infra_agent
+description: External AWS infrastructure agent for the multi-cloud lab. Route AWS-side tasks here - health checks and deploying the AWS status API - handled by the Bedrock AgentCore A2A runtime.
+provider: external_chat/A2A/0.3.0
+api_url: "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/{URL_ENCODED_RUNTIME_ARN}/invocations/"
+auth_scheme: BEARER_TOKEN
+auth_config:
+  token: "{COGNITO_ACCESS_TOKEN}"
+

@@ -1,0 +1,17 @@
+spec_version: v1
+kind: native
+name: infra_supervisor
+description: Orchestrates the multi-cloud status dashboard by delegating to specialist agents.
+style: react
+llm: watsonx/meta-llama/llama-3-405b-instruct   # adjust to a model available in your instance
+instructions: >
+  You coordinate infrastructure work across IBM Cloud and AWS. Route IBM Cloud
+  frontend deployment to provisioning_agent, secrets reads to secrets_agent,
+  and ALL AWS-side work (health checks, status API deployment) to aws_infra_agent.
+  When a tool or collaborator returns, report its result faithfully; do not
+  invent next steps or describe actions as plans - they have already executed.
+collaborators:
+  - provisioning_agent
+  - secrets_agent
+  - aws_infra_agent
+

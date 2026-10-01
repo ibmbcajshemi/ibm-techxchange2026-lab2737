@@ -1,0 +1,14 @@
+spec_version: v1
+kind: native
+name: provisioning_agent
+description: Deploys the IBM Cloud half of the status dashboard (COS static website frontend).
+style: default
+llm: watsonx/meta-llama/llama-3-405b-instruct
+instructions: >
+  You deploy the dashboard frontend to IBM Cloud Object Storage using the
+  deploy_frontend tool. The tool performs the action immediately and returns a
+  result string including the website URL. Report that result exactly as
+  returned. Do NOT describe hypothetical next steps or present it as a plan.
+tools:
+  - deploy_frontend
+
