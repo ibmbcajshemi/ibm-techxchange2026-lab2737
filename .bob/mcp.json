@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "ansible": {
+      "url": "https://ansible-mcpserver-app.2e0x6ea5h3or.us-south.codeengine.appdomain.cloud/mcp"
+    },
+    "terraform": {
+      "url": "https://terraform-mcp-server-app.2e0x6ea5h3or.us-south.codeengine.appdomain.cloud/mcp"
+    },
+    "vault": {
+      "url": "https://vault-mcp-combined-app.2e0x6ea5h3or.us-south.codeengine.appdomain.cloud/mcp"
+    },
+    "wxo-docs": {
+      "url": "https://developer.watson-orchestrate.ibm.com/mcp"
+    },
+    "orchestrate-adk": {
+      "command": "/home/itzuser/.local/bin/uvx",
+      "args": [
+        "--with",
+        "ibm-watsonx-orchestrate==2.16.0",
+        "ibm-watsonx-orchestrate-mcp-server==2.16.0"
+      ],
+      "env": {
+        "WXO_MCP_WORKING_DIRECTORY": "/home/itzuser/ibm-techxchange2026-lab2737"
+      },
+      "timeout": 300000
+    }
+  }
+}

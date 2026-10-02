@@ -1,5 +1,7 @@
+from typing import Annotated
 import ibm_boto3
 from ibm_botocore.client import Config as IBMConfig
+from pydantic import Field
 from ibm_watsonx_orchestrate.agent_builder.tools import tool, ToolPermission
 from ibm_watsonx_orchestrate.agent_builder.connections import ConnectionType
 from ibm_watsonx_orchestrate.run import connections
@@ -23,15 +25,12 @@ fetch("__AWS_STATUS_URL__").then(r=>r.json()).then(d=>{
 @tool(name="deploy_frontend", permission=ToolPermission.READ_WRITE,
       description="Deploy the dashboard frontend to an IBM COS static website. Deploys immediately; report result.",
       expected_credentials=[{"app_id": CLOUD_CREDS, "type": ConnectionType.KEY_VALUE}])
-def deploy_frontend(bucket_name: str, aws_status_url: str) -> str:
+def deploy_frontend(
+    bucket_name: Annotated[str, Field(description="COS bucket name, e.g. 'txlab-dev-dashboard-<initials>'.")],
+    aws_status_url: Annotated[str, Field(description="Public URL of the AWS status.json (from the AWS agent).")],
+) -> str:
     """Create/refresh the IBM COS bucket, upload the dashboard wired to the AWS
     status URL, and enable static website hosting.
-
-    Args:
-        bucket_name: COS bucket name, e.g. 'txlab-dev-dashboard-<initials>'.
-        aws_status_url: Public URL of the AWS status.json (from the AWS agent).
-    Returns:
-        The dashboard website URL.
     """
     c = connections.key_value(CLOUD_CREDS)
     cos = ibm_boto3.client("s3",

@@ -1,7 +1,9 @@
+from typing import Annotated
 import json
 import os
 import urllib.request
 
+from pydantic import Field
 from ibm_watsonx_orchestrate.agent_builder.tools import tool, ToolPermission
 
 _MCP_URL = (
@@ -16,15 +18,11 @@ _TOKEN = os.environ.get("VAULT_TOKEN", "root")
 
 @tool(name="vault_read_secret", permission=ToolPermission.READ_ONLY,
       description="Read a field from a Vault KV v2 secret.")
-def vault_read_secret(path: str, field: str) -> str:
-    """Read one field from HashiCorp Vault (KV v2) via the MCP server and confirm access.
-
-    Args:
-        path: Secret path under the kv mount, e.g. 'txlab/dev/ibm-api-key'.
-        field: The field name to read, e.g. 'api_key'.
-    Returns:
-        Confirmation that the field was read (value withheld).
-    """
+def vault_read_secret(
+    path: Annotated[str, Field(description="Secret path under the kv mount, e.g. 'txlab/dev/ibm-api-key'.")],
+    field: Annotated[str, Field(description="The field name to read, e.g. 'api_key'.")],
+) -> str:
+    """Read one field from HashiCorp Vault (KV v2) via the MCP server and confirm access."""
     payload = json.dumps({
         "jsonrpc": "2.0",
         "id": 1,
