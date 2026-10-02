@@ -1,11 +1,2 @@
-<<<<<<< Updated upstream
 .venv-wxo/
 tools/__pycache__/
-=======
-<<<<<<< HEAD
-.env
-=======
-.venv-wxo/
-tools/__pycache__/
->>>>>>> 8f3ea686b7a309f8061db7eda0a3ebaeb741228c
->>>>>>> Stashed changes

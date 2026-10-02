@@ -15,6 +15,64 @@ _MCP_URL = (
 )
 _TOKEN = os.environ.get("VAULT_TOKEN", "root")
 
+_session_id: str | None = None
+
+_COMMON_HEADERS = {
+    "Content-Type": "application/json",
+    "Accept": "application/json, text/event-stream",
+    "X-Vault-Token": _TOKEN,
+}
+
+
+def _initialize() -> str:
+    """Run the MCP initialize handshake and return the session ID."""
+    payload = json.dumps({
+        "jsonrpc": "2.0",
+        "id": 0,
+        "method": "initialize",
+        "params": {
+            "protocolVersion": "2024-11-05",
+            "capabilities": {},
+            "clientInfo": {"name": "vault_read_secret", "version": "1.0"},
+        },
+    }).encode()
+    req = urllib.request.Request(_MCP_URL, data=payload, headers=_COMMON_HEADERS)
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        return resp.headers.get("Mcp-Session-Id", "")
+
+
+def _get_session() -> str:
+    """Return the cached session ID, initializing if needed."""
+    global _session_id
+    if not _session_id:
+        _session_id = _initialize()
+    return _session_id
+
+
+def _tools_call(params: dict) -> dict:
+    """Send a tools/call, retrying once if the session is stale."""
+    global _session_id
+    for attempt in range(2):
+        session = _get_session()
+        payload = json.dumps({
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": params,
+        }).encode()
+        headers = {**_COMMON_HEADERS, "Mcp-Session-Id": session}
+        req = urllib.request.Request(_MCP_URL, data=payload, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                return json.loads(resp.read().decode())
+        except urllib.error.HTTPError as e:
+            if e.code == 400 and attempt == 0:
+                # Session likely expired — clear and retry once
+                _session_id = None
+                continue
+            raise
+    raise RuntimeError("MCP tools/call failed after session refresh")  # unreachable
+
 
 @tool(name="vault_read_secret", permission=ToolPermission.READ_ONLY,
       description="Read a field from a Vault KV v2 secret.")
@@ -23,29 +81,10 @@ def vault_read_secret(
     field: Annotated[str, Field(description="The field name to read, e.g. 'api_key'.")],
 ) -> str:
     """Read one field from HashiCorp Vault (KV v2) via the MCP server and confirm access."""
-    payload = json.dumps({
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "tools/call",
-        "params": {
-            "name": "read_secret",
-            "arguments": {"mount": "secret", "path": path},
-        },
-    }).encode()
-
-    req = urllib.request.Request(
-        _MCP_URL,
-        data=payload,
-        headers={
-            "Content-Type": "application/json",
-            "Accept": "application/json, text/event-stream",
-            "X-Vault-Token": _TOKEN,
-        },
-    )
-
     try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            result = json.loads(resp.read().decode())
+        result = _tools_call(
+            {"name": "read_secret", "arguments": {"mount": "secret", "path": path}}
+        )
     except urllib.error.HTTPError as e:
         return f"MCP request failed: HTTP {e.code} — {e.reason}"
     except Exception as e:
