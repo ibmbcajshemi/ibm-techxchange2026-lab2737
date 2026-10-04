@@ -35,11 +35,13 @@ echo ""
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 # ── Patch helper ──────────────────────────────────────────────────────────────
-# Idempotent: skips the line if the search string is not found (already patched).
+# Idempotent: anchors both grep and sed to end-of-line so an already-suffixed
+# value (e.g. secrets_agent_ajs) does not match the bare search term
+# (secrets_agent) and receive a second suffix on re-run.
 patch_file() {
   local file="$1" search="$2" replace="$3"
-  if grep -qF "$search" "$file"; then
-    sed -i "s|${search}|${replace}|g" "$file"
+  if grep -qE "${search}$" "$file"; then
+    sed -i "s|${search}$|${replace}|g" "$file"
     echo -e "  ${GREEN}patched${NC}  $(basename "$file")  ($search → $replace)"
   else
     echo -e "  ${YELLOW}skip${NC}     $(basename "$file")  ('$search' not found — already patched?)"
