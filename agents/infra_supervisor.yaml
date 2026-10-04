@@ -3,7 +3,7 @@ kind: native
 name: infra_supervisor
 description: Orchestrates the multi-cloud status dashboard by delegating to specialist agents.
 style: react
-llm: watsonx/meta-llama/llama-3-405b-instruct   # adjust to a model available in your instance
+llm: groq/openai/gpt-oss-120b
 instructions: >
   You coordinate infrastructure work across IBM Cloud and AWS. Route IBM Cloud
   frontend deployment to provisioning_agent, secrets reads to secrets_agent,

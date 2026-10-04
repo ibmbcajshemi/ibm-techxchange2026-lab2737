@@ -3,7 +3,7 @@ kind: native
 name: provisioning_agent
 description: Deploys the IBM Cloud half of the status dashboard (COS static website frontend).
 style: default
-llm: watsonx/meta-llama/llama-3-405b-instruct
+llm: groq/openai/gpt-oss-120b
 instructions: >
   You deploy the dashboard frontend to IBM Cloud Object Storage using the
   deploy_frontend tool. The tool performs the action immediately and returns a
