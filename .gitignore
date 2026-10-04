@@ -1,2 +1,3 @@
 .venv-wxo/
 tools/__pycache__/
+.env

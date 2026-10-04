@@ -159,15 +159,23 @@ vault kv get -field=api_key secret/txlab/dev/ibm-api-key >/dev/null && echo "sec
 
 ## 7. Phase 4 — Build the Orchestrate side (25 min)
 
-### Step 4.1 — Point the Vault tool at the Code Engine Vault
+### Step 4.0 — Personalize your file names
 
-Open `tools/vault_read_secret.py`. Find the line:
+You share one Orchestrate instance with all lab participants. Run this script **once, before touching any tools or agents** — it stamps your initials on every tool, agent, and connection name so your imports do not overwrite someone else's.
 
-```python
-addr = os.environ.get("VAULT_ADDR", "https://VAULT_CE_URL_HERE")
+```bash
+bash scripts/personalize.sh
 ```
 
-Replace `https://VAULT_CE_URL_HERE` with your `{VAULT_ADDR}`. Save. (The tool reads a KV v2 field via `hvac` and confirms access **without echoing the value** — open the file and read it; it's 20 lines.)
+Enter your initials when prompted (e.g. `ckg`). The script:
+1. Patches all tool, agent, and connection names in-place across `tools/` and `agents/`
+2. Prints your **copy-paste ready Phase 4 commands** with initials already substituted
+
+Use the commands printed by the script for Steps 4.2 and 4.3 — not the generic names shown below.
+
+### Step 4.1 — Review the Vault tool
+
+Open `tools/vault_read_secret.py` and read it. The tool connects to the Vault MCP server via JSON-RPC over `urllib` (no extra dependencies), reads a KV v2 field via the `read_secret` MCP tool, and confirms access **without echoing the value**. The Vault URL and token are injected at runtime through the `vault_creds` connection you will create in Step 4.2 — no manual URL substitution needed.
 
 ### Step 4.2 — Create the cloud_creds connection
 
@@ -190,13 +198,13 @@ Expected output for each command: `Successfully created connection` / `Configura
 The tool module is parsed **locally at import time**, so its libraries must exist in the ADK's Python environment too:
 
 ```bash
-pip install hvac boto3 ibm-cos-sdk
-orchestrate tools import -k python -f tools/vault_read_secret.py -r tools/vault_requirements.txt
+pip install boto3 ibm-cos-sdk
+orchestrate tools import -k python -f tools/vault_read_secret.py -r tools/vault_requirements.txt -a vault_creds
 orchestrate tools import -k python -f tools/deploy_frontend.py -r tools/cloud_requirements.txt -a cloud_creds
-orchestrate tools list        # expect: vault_read_secret, deploy_frontend
+orchestrate tools list        # expect: vault_read_secret, deploy_frontend (both with your initials suffix)
 ```
 
-Note the `-a cloud_creds` on the second import — that flag binds the tool to the connection you created in 4.2.
+Note the `-a` flag on both imports — it binds each tool to its connection (`vault_creds` for Vault, `cloud_creds` for COS).
 
 ### Step 4.4 — Let Bob create the agents
 
@@ -353,7 +361,7 @@ Instructors additionally: revoke the Service ID key, rotate the Cognito lab pass
 | AWS tool returns **AccessDenied** | Execution role missing an S3 action → re-run Step 5.4; wait ~1 min for IAM. |
 | AWS agent replies **empty** | Model access → re-run the Nova test (Step 5.1). If Strands defaulted to a Claude model, that requires a use-case form — the lab's code pins Nova; confirm your `a2a_server.py` kept the `BedrockModel(... nova-lite ...)` line. |
 | Dashboard shows **unreachable** | CORS/public policy on the AWS bucket → open `status.json` directly; if it loads but the dashboard fails, re-run `deploy_status_api` (it reapplies CORS). |
-| `tools import` fails: **No module named …** | Install the library in the ADK Python env (`pip install hvac boto3 ibm-cos-sdk`) — tools are parsed locally at import time. |
+| `tools import` fails: **No module named …** | Install the library in the ADK Python env (`pip install boto3 ibm-cos-sdk`) — tools are parsed locally at import time. |
 | Agent import fails: **collaborator not found** | Import order — specialists and the external agent before the supervisor. |
 | Agent narrates a **"plan"** instead of a result | Re-import the agent YAMLs as shipped — their instructions say "report the tool result exactly; do not present it as a plan." |
 
