@@ -57,7 +57,7 @@ patch_file "$F" "VAULT_CREDS = \"vault_creds\"" "VAULT_CREDS = \"vault_creds_${I
 # ── tools/deploy_frontend.py ──────────────────────────────────────────────────
 echo "--- tools/deploy_frontend.py"
 F="$REPO_DIR/tools/deploy_frontend.py"
-patch_file "$F" 'name="deploy_frontend"'          "name=\"deploy_frontend_${INITIALS}\""
+patch_file "$F" 'name="deploy_frontend",'         "name=\"deploy_frontend_${INITIALS}\","
 patch_file "$F" 'CLOUD_CREDS = "cloud_creds"'     "CLOUD_CREDS = \"cloud_creds_${INITIALS}\""
 
 # ── agents/secrets_agent.yaml ─────────────────────────────────────────────────
