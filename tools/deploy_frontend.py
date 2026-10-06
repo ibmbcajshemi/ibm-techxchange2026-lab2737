@@ -50,9 +50,8 @@ def deploy_frontend(
     cos.put_bucket_website(Bucket=bucket_name, WebsiteConfiguration={
         "IndexDocument": {"Suffix": "index.html"}})
     # public read for the lab (delete bucket after the event)
-    cos.put_public_access_block(Bucket=bucket_name, PublicAccessBlockConfiguration={
-        "BlockPublicAcls": False, "IgnorePublicAcls": False,
-        "BlockPublicPolicy": False, "RestrictPublicBuckets": False})
+    cos.put_bucket_acl(Bucket=bucket_name, ACL="public-read")
+    cos.put_object_acl(Bucket=bucket_name, Key="index.html", ACL="public-read")
     endpoint_host = c.get("IBM_COS_ENDPOINT").replace("https://s3.", "")
     url = f"http://{bucket_name}.s3-web.{endpoint_host}"
     return f"Done. Dashboard deployed. Open: {url}"
