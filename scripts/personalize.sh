@@ -51,7 +51,7 @@ patch_file() {
 # ── tools/vault_read_secret.py ────────────────────────────────────────────────
 echo "--- tools/vault_read_secret.py"
 F="$REPO_DIR/tools/vault_read_secret.py"
-patch_file "$F" 'name="vault_read_secret"'        "name=\"vault_read_secret_${INITIALS}\""
+patch_file "$F" 'name="vault_read_secret",'       "name=\"vault_read_secret_${INITIALS}\","
 patch_file "$F" "VAULT_CREDS = \"vault_creds\"" "VAULT_CREDS = \"vault_creds_${INITIALS}\""
 
 # ── tools/deploy_frontend.py ──────────────────────────────────────────────────
